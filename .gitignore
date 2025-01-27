@@ -1,0 +1,39 @@
+# Ignore all files
+*
+
+# Allow directories
+!*/
+
+# Allow C files
+!*.c
+!*.h
+
+# Allow other text files
+!*.json
+!*.md
+!*.overlay
+!*.py
+!*.txt
+!*.yaml
+!*.yml
+!*.clang-format
+
+# Allow Zephyr files
+!*.conf
+
+# Allow specific files
+!.prettierignore
+!.gitignore
+
+# Ignore VSCode directory
+.vscode/
+
+# Ignore Twister directory
+twister-out*/
+
+# Ignore Zephyr directories
+bootloader/
+build/
+modules/
+tools/
+zephyr/

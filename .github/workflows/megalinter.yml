@@ -1,0 +1,46 @@
+name: megalinter
+
+permissions: read-all
+
+on:
+  push:
+  pull_request:
+    branches:
+      - master
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  SPELL_LYCHEE_ARGUMENTS: "--exclude  st.com"
+  MARKDOWN_MARKDOWN_LINK_CHECK_CONFIG_FILE: "config.json"
+  REPOSITORY_DEVSKIM_ARGUMENTS: --ignore-rule-ids DS154189,DS140021 # https://github.com/microsoft/DevSkim/tree/main/guidance
+  C_CPPLINT_ARGUMENTS: "--linelength=140 --filter=-build/include_what_you_use,-readability/casting"
+  C_CLANG_FORMAT_ARGUMENTS: "--style=Google"
+  CPP_CLANG_FORMAT_ARGUMENTS: "--style=Google"
+
+jobs:
+  megalinter:
+    name: megalinter
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.PAT || secrets.GITHUB_TOKEN }}
+
+      - name: MegaLinter
+        uses: oxsecurity/megalinter@1fc052d03c7a43c78fe0fee19c9d648b749e0c01 # v8.3.0
+        env:
+          VALIDATE_ALL_CODEBASE: ${{ github.event_name == 'push' && github.ref == 'refs/heads/master' }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Archive production artifacts
+        if: success() || failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: MegaLinter reports
+          path: |
+            megalinter-reports
+            mega-linter.log
